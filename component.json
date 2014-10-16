@@ -3,7 +3,7 @@
 	"repository": "Wizcorp/scheduled-resource",
 	"version": "0.1.0",
 	"dependencies": {
-		"moment/moment": "2.8.3",
+		"moment/moment": "2.8.3"
 	},
 	"scripts": [
 		"index.js"
