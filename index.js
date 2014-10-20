@@ -73,6 +73,10 @@ function ScheduledResource(resource, schedule, now) {
 		var slots = getActive(timestamp);
 
 		if (slotId) {
+			if (!slots[slotId] || !slots[slotId].length) {
+				return;
+			}
+
 			return slots[slotId].reduce(priorityReducer).resource;
 		}
 
