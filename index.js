@@ -8,7 +8,6 @@ function priorityReducer(previousValue, currentValue) {
 			!previousValue.hasOwnProperty('priority') ||
 			previousValue.priority < currentValue.priority ? currentValue : previousValue;
 }
-window.moment = moment;
 
 function ScheduledResource(resource, schedule, now) {
 	now = now || function () { return Date.now(); };

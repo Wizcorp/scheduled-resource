@@ -1,7 +1,7 @@
 {
 	"name": "scheduled-resource",
 	"description": "Need to change your data on a schedule? Every monday at 3:00, starting next week, until the end of the month?",
-	"version": "0.1.3",
+	"version": "0.1.4",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/Wizcorp/scheduled-resource.git"
