@@ -1,7 +1,6 @@
 var moment = require('moment');
 
 var ONE_HOUR = 60 * 60 * 1000;
-var TIMEZONE_OFFSET = -540;
 
 function priorityReducer(previousValue, currentValue) {
 	return !previousValue ||
@@ -17,6 +16,8 @@ function ScheduledResource(resource, schedule, now) {
 		validAfter: 0,
 		validUntil: 0
 	};
+
+	this.cache = cache;
 
 	function isEntryActive(entry, scheduleTime, timestamp) {
 		var activeAfter = Math.max(entry.start || 0, scheduleTime) * 1000;
@@ -36,17 +37,19 @@ function ScheduledResource(resource, schedule, now) {
 		cache.validAfter = timestamp - timestamp % ONE_HOUR;
 		cache.validUntil = cache.validAfter + ONE_HOUR;
 
-		var currentTime = moment(timestamp).zone(TIMEZONE_OFFSET);
+		var currentTime = moment(timestamp);
 
-		var week = currentTime.format('WW');
+		var msecTimestamp = currentTime.unix() * 1000;
+
+		var week = currentTime.format('W');
 
 		for (var dayId in schedule) {
 			var day = dayId === '*' ? currentTime.format('E') : dayId;
 
 			for (var hourId in schedule[dayId]) {
-				var hour = hourId === '*' ? currentTime.format('HH') : hourId;
+				var hour = hourId === '*' ? currentTime.format('H') : hourId;
 
-				var scheduleTime = moment(week + hour, 'WWHH').add(day - 1, 'days').unix();
+				var scheduleTime = moment(week + '/' + hour, 'W/H').add(parseInt(day, 10) - 1, 'days').unix();
 
 				for (var slotId in schedule[dayId][hourId]) {
 					if (!cache.slots[slotId]) {
@@ -58,7 +61,7 @@ function ScheduledResource(resource, schedule, now) {
 					for (var i = 0; i < entries.length; i += 1) {
 						var entry = entries[i];
 
-						if (isEntryActive(entry, scheduleTime, timestamp)) {
+						if (isEntryActive(entry, scheduleTime, msecTimestamp)) {
 							cache.slots[slotId].push({ resource: resource[entry.resourceId], priority: entry.priority });
 						}
 					}
