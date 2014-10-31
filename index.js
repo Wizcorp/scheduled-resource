@@ -1,12 +1,14 @@
 var moment = require('moment');
 
 var ONE_HOUR = 60 * 60 * 1000;
+var TIMEZONE_OFFSET = -540;
 
 function priorityReducer(previousValue, currentValue) {
 	return !previousValue ||
 			!previousValue.hasOwnProperty('priority') ||
 			previousValue.priority < currentValue.priority ? currentValue : previousValue;
 }
+window.moment = moment;
 
 function ScheduledResource(resource, schedule, now) {
 	now = now || function () { return Date.now(); };
@@ -37,9 +39,7 @@ function ScheduledResource(resource, schedule, now) {
 		cache.validAfter = timestamp - timestamp % ONE_HOUR;
 		cache.validUntil = cache.validAfter + ONE_HOUR;
 
-		var currentTime = moment(timestamp);
-
-		var msecTimestamp = currentTime.unix() * 1000;
+		var currentTime = moment(timestamp).zone(TIMEZONE_OFFSET);
 
 		var week = currentTime.format('W');
 
@@ -49,7 +49,7 @@ function ScheduledResource(resource, schedule, now) {
 			for (var hourId in schedule[dayId]) {
 				var hour = hourId === '*' ? currentTime.format('H') : hourId;
 
-				var scheduleTime = moment(week + '/' + hour, 'W/H').add(parseInt(day, 10) - 1, 'days').unix();
+				var scheduleTime = moment(week + '/' + hour + ' +0900', 'W/H Z').zone(TIMEZONE_OFFSET).add(parseInt(day, 10) - 1, 'days').unix();
 
 				for (var slotId in schedule[dayId][hourId]) {
 					if (!cache.slots[slotId]) {
@@ -61,7 +61,7 @@ function ScheduledResource(resource, schedule, now) {
 					for (var i = 0; i < entries.length; i += 1) {
 						var entry = entries[i];
 
-						if (isEntryActive(entry, scheduleTime, msecTimestamp)) {
+						if (isEntryActive(entry, scheduleTime, currentTime.unix() * 1000)) {
 							cache.slots[slotId].push({ resource: resource[entry.resourceId], priority: entry.priority });
 						}
 					}
