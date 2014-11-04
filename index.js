@@ -40,7 +40,7 @@ function ScheduledResource(resource, schedule, now) {
 
 		var currentTime = moment(timestamp).zone(TIMEZONE_OFFSET);
 
-		var week = currentTime.format('W');
+		var yearWeek = currentTime.format('GGGG/WW');
 
 		for (var dayId in schedule) {
 			var day = dayId === '*' ? currentTime.format('E') : dayId;
@@ -48,7 +48,7 @@ function ScheduledResource(resource, schedule, now) {
 			for (var hourId in schedule[dayId]) {
 				var hour = hourId === '*' ? currentTime.format('H') : hourId;
 
-				var scheduleTime = moment(week + '/' + hour + ' +0900', 'W/H Z').zone(TIMEZONE_OFFSET).add(parseInt(day, 10) - 1, 'days').unix();
+				var scheduleTime = moment(yearWeek + '/' + hour + ' +0900', 'GGGG/WW/H Z').zone(TIMEZONE_OFFSET).add(parseInt(day, 10) - 1, 'days').unix();
 
 				for (var slotId in schedule[dayId][hourId]) {
 					if (!cache.slots[slotId]) {
